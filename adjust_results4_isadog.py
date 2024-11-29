@@ -39,43 +39,36 @@
 # 
 def adjust_results4_isadog(results_dic, dogfile):
     """
-    Adjusts the results dictionary to determine if classifier correctly 
-    classified images 'as a dog' or 'not a dog' especially when not a match. 
-    Demonstrates if model architecture correctly classifies dog images even if
-    it gets dog breed wrong (not a match).
-    Parameters:
-      results_dic - Dictionary with 'key' as image filename and 'value' as a 
-                    List. Where the list will contain the following items: 
-                  index 0 = pet image label (string)
-                  index 1 = classifier label (string)
-                  index 2 = 1/0 (int)  where 1 = match between pet image
-                    and classifer labels and 0 = no match between labels
-                ------ where index 3 & index 4 are added by this function -----
-                 NEW - index 3 = 1/0 (int)  where 1 = pet image 'is-a' dog and 
-                            0 = pet Image 'is-NOT-a' dog. 
-                 NEW - index 4 = 1/0 (int)  where 1 = Classifier classifies image 
-                            'as-a' dog and 0 = Classifier classifies image  
-                            'as-NOT-a' dog.
-     dogfile - A text file that contains names of all dogs from the classifier
-               function and dog names from the pet image files. This file has 
-               one dog name per line dog names are all in lowercase with 
-               spaces separating the distinct words of the dog name. Dog names
-               from the classifier function can be a string of dog names separated
-               by commas when a particular breed of dog has multiple dog names 
-               associated with that breed (ex. maltese dog, maltese terrier, 
-               maltese) (string - indicates text file's filename)
-    Returns:
-           None - results_dic is mutable data type so no return needed.
+    Cập nhật từ điển kết quả để xác định liệu nhãn hình ảnh có phải là chó hay không,
+    và liệu nhãn của trình phân loại có xác định đúng là chó hay không. Điều này
+    giúp kiểm tra khả năng phân loại đúng hình ảnh là chó ngay cả khi sai giống.
+
+    Tham số:
+      results_dic - Từ điển với 'key' là tên tệp hình ảnh và 'value' là danh sách:
+                    index 0 = nhãn của hình ảnh (chuỗi)
+                    index 1 = nhãn của trình phân loại (chuỗi)
+                    index 2 = 1/0 (int), 1 = khớp nhãn, 0 = không khớp
+                ------ Chỉ số 3 & 4 sẽ được thêm bởi hàm này ------
+                 MỚI - index 3 = 1/0 (int), 1 = nhãn hình ảnh là chó,
+                            0 = nhãn hình ảnh không phải chó.
+                 MỚI - index 4 = 1/0 (int), 1 = trình phân loại xác định là chó,
+                            0 = trình phân loại xác định không phải chó.
+     dogfile - Tệp văn bản chứa tên của các giống chó, mỗi dòng một tên, tất cả
+               đều viết thường. (chuỗi - tên tệp)
+    Trả về:
+           Không trả về - `results_dic` được cập nhật trực tiếp.
     """
-    valid_dog_names = set()
+    # Tạo tập hợp chứa các tên giống chó hợp lệ từ tệp
+    dog_names_set = set()
     with open(dogfile, 'r') as file:
-        for line in file:
-            dog_name = line.strip().lower()
-            valid_dog_names.add(dog_name)
-    for image_filename, values in results_dic.items():
-        pet_label = values[0]
-        classifier_label = values[1]
-        is_dog = int(pet_label in valid_dog_names)
-        classifier_classifies_as_dog = int(classifier_label in valid_dog_names)
-        values.append(1 if is_dog else 0)
-        values.append(1 if classifier_classifies_as_dog else 0)
+        for dog_name in file:
+            dog_names_set.add(dog_name.strip().lower())
+
+    # Duyệt qua từng mục trong results_dic và thêm các thông tin mới
+    for key, values in results_dic.items():
+        # Kiểm tra nhãn của hình ảnh có phải là chó không
+        pet_is_dog = 1 if values[0] in dog_names_set else 0
+        # Kiểm tra nhãn của trình phân loại có phải là chó không
+        classifier_is_dog = 1 if values[1] in dog_names_set else 0
+        # Cập nhật kết quả vào từ điển
+        values.extend([pet_is_dog, classifier_is_dog])

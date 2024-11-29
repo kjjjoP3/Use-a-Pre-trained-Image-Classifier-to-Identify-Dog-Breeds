@@ -25,35 +25,42 @@ import os
 # 
 def get_pet_labels(image_dir):
     """
-    Creates a dictionary of pet labels (results_dic) based upon the filenames 
-    of the image files. These pet image labels are used to check the accuracy 
-    of the labels that are returned by the classifier function, since the 
-    filenames of the images contain the true identity of the pet in the image.
-    Be sure to format the pet labels so that they are in all lower case letters
-    and with leading and trailing whitespace characters stripped from them.
-    (ex. filename = 'Boston_terrier_02259.jpg' Pet label = 'boston terrier')
-    Parameters:
-     image_dir - The (full) path to the folder of images that are to be
-                 classified by the classifier function (string)
-    Returns:
-      results_dic - Dictionary with 'key' as image filename and 'value' as a 
-      List. The list contains for following item:
-         index 0 = pet image label (string)
-    """
-    results_dic = {}
-    if not os.path.isdir(image_dir):
-        print(f"Directory {image_dir} not found!")
-        return results_dic
+    Builds a dictionary of pet labels (results_dic) based on the filenames 
+    of the image files. The filenames contain the true identity of the pet 
+    in the image, which is used to check the accuracy of the classifier's labels. 
+    Ensure that pet labels are in lowercase and without leading or trailing spaces.
+    (Example: filename = 'Boston_terrier_02259.jpg' -> Pet label = 'boston terrier')
     
+    Parameters:
+     image_dir - The full path to the folder containing images to be classified (string)
+    
+    Returns:
+      results_dic - A dictionary where:
+        - Key: Image filename (string)
+        - Value: List containing the pet label (string) at index 0
+    """
+    # Initialize the results dictionary
+    results_dic = {}
+
+    # Check if the given directory exists
+    if not os.path.isdir(image_dir):
+        print(f"Directory '{image_dir}' not found!")
+        return results_dic
+
+    # Iterate over each file in the directory
     for filename in os.listdir(image_dir):
-        if not filename.startswith('.'):
+        if not filename.startswith('.'):  # Skip hidden files (e.g., .DS_Store)
+
+            # Split the filename from its extension
             file_name, file_extension = os.path.splitext(filename)
-            filepath = os.path.join(image_dir, filename)
-            if(file_extension.lower() in ['.jpg', '.jpeg', '.png', '.gif']):
-                pet_labels = file_name.replace('_', ' ').lower().split()
-                pet_labels.pop()
-                pet_label = ' '.join(pet_labels)
+
+            # Only process image files (jpg, jpeg, png, gif)
+            if file_extension.lower() in ['.jpg', '.jpeg', '.png', '.gif']:
+                
+                # Convert the filename to lowercase and replace underscores with spaces
+                pet_label = ' '.join([word.lower() for word in file_name.split('_') if word.isalpha()])
+
+                # Store the filename and its corresponding pet label in the dictionary
                 results_dic[filename] = [pet_label]
+
     return results_dic
-    # Replace None with the results_dic dictionary that you created with this
-    # function
